@@ -457,6 +457,33 @@
       }
     }
 
+    /* Rechenaufgabe am Tor (Overlay + Ziffernblock) */
+    #mathScr { background: rgba(25, 45, 85, .55); z-index: 40 }
+    #mathQ { font-size: 44px; font-weight: bold; color: #2f6db5; margin: 8px 0 2px }
+    #mathAns { font-size: 34px; font-weight: bold; color: #ff4f8b; min-height: 46px; width: 150px; margin: 0 auto 12px; border-bottom: 4px dashed #9fd4ff; line-height: 46px }
+    #mathPad { display: grid; grid-template-columns: repeat(3, 74px); gap: 10px; justify-content: center }
+    .mkey { font: inherit; font-size: 26px; font-weight: bold; width: 74px; height: 62px; border-radius: 16px; border: none; background: #eef7ff; color: #2f6db5; box-shadow: 0 4px 0 #cfe4f7; cursor: pointer; touch-action: manipulation; pointer-events: auto }
+    .mkey:active { transform: translateY(3px); box-shadow: 0 1px 0 #cfe4f7 }
+    .mkey.ok { background: #5cbf60; color: #fff; box-shadow: 0 4px 0 #3f8f3f }
+    .mkey.del { background: #ffe3ec; color: #d63e73; box-shadow: 0 4px 0 #eeb6c8 }
+    #mathWrong { margin-top: 6px; font-size: 18px; color: #c2447c; line-height: 1.5 }
+    @media (max-width:560px) {
+      #mathQ { font-size: 34px }
+      #mathAns { font-size: 28px; min-height: 38px; line-height: 38px; width: 130px }
+      #mathPad { grid-template-columns: repeat(3, 62px); gap: 8px }
+      .mkey { width: 62px; height: 54px; font-size: 22px; border-radius: 13px }
+      #mathWrong { font-size: 15px }
+    }
+    @media (max-height:460px) {
+      #mathScr .card { padding: 10px 16px }
+      #mathScr h1 { font-size: 24px; margin: 0 0 2px }
+      #mathScr .sub { font-size: 13px; margin: 2px 0 }
+      #mathQ { font-size: 30px; margin: 2px 0 }
+      #mathAns { font-size: 24px; min-height: 30px; line-height: 30px; margin-bottom: 6px }
+      #mathPad { grid-template-columns: repeat(3, 56px); gap: 7px }
+      .mkey { width: 56px; height: 46px; font-size: 19px; border-radius: 11px; box-shadow: 0 3px 0 #cfe4f7 }
+      #mathWrong { font-size: 14px }
+    }
     /* Querformat-Handys: Hinweis über den Steuerknöpfen statt oben */
     @media (max-height:460px) {
       #hint {
@@ -501,7 +528,7 @@
       <div class="chipRow" id="rowPants"></div>
       <button class="btn" id="playBtn">▶️ Los geht&#39;s!</button>
       <div class="sub" style="margin-top:10px;font-size:13px">Ziffern 1–6 = Symbol wählen · Pfeile/A,D = laufen ·
-        Leertaste = springen · Klick/Tipp = schießen · ⏱ Kein Zeitlimit!</div>
+        Leertaste = springen · Klick/Tipp = schießen · ⏱ Kein Zeitlimit! · 🔐 Am Tor: erst rechnen, dann durch!</div>
     </div>
   </div>
 
@@ -510,6 +537,25 @@
       <h1 id="doneTitle">🎉 Level geschafft! 🎉</h1>
       <div id="doneTxt"></div>
       <button class="btn" id="nextBtn">Weiter ➡️</button>
+    </div>
+  </div>
+
+  <div id="mathScr" class="screen hidden">
+    <div class="card">
+      <h1>🔐 Das Tor</h1>
+      <div class="sub">Rechne die Aufgabe, um durchzugehen!</div>
+      <div id="mathQ"></div>
+      <div id="mathAns">_</div>
+      <div id="mathPad">
+        <button class="mkey" data-k="1">1</button><button class="mkey" data-k="2">2</button><button class="mkey" data-k="3">3</button>
+        <button class="mkey" data-k="4">4</button><button class="mkey" data-k="5">5</button><button class="mkey" data-k="6">6</button>
+        <button class="mkey" data-k="7">7</button><button class="mkey" data-k="8">8</button><button class="mkey" data-k="9">9</button>
+        <button class="mkey del" data-k="del">⌫</button><button class="mkey" data-k="0">0</button><button class="mkey ok" data-k="ok">✓</button>
+      </div>
+      <div id="mathWrong" class="hidden">
+        <div id="mathWrongTxt"></div>
+        <button class="btn" id="retryBtn">🔁 Level wiederholen</button>
+      </div>
     </div>
   </div>
 
@@ -532,6 +578,7 @@
       { nm: "Wüste 🌵", sky0: "#ffd9a0", sky1: "#fff3dc", gnd: "#e8c07a", gnd2: "#d3a75d", hill: "#f0d3a0", dec: "kaktus", blk: "#d9a55f" },
       { nm: "Schneeland ⛄", sky0: "#a8cfe8", sky1: "#f2faff", gnd: "#f4f8fb", gnd2: "#cfe2ee", hill: "#e7f2fa", dec: "schnee", blk: "#bfe0f2" }];
     const LEVELS = [{ n: 8, types: 3 }, { n: 10, types: 4 }, { n: 12, types: 4 }, { n: 14, types: 5 }, { n: 16, types: 6 }];
+    function getLevel(li) { if (li < LEVELS.length) return LEVELS[li]; return { n: Math.min(16 + (li - 4) * 2, 26), types: 6 }; } // unendlich viele Level
     const CFG = JSON.parse(localStorage.getItem("ks_char") || "null") || { skin: 1, hair: 1, hairC: 5, shirt: 4, pants: 0, name: "" };
     function hash(n) { const s = Math.sin(n * 127.1) * 43758.5453; return s - Math.floor(s); }
     function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
@@ -642,10 +689,10 @@
       const yTop = hudOK ? 20 : skyTop() + 36; // Querformat: bis 10px unter den oberen Rand; sonst unter der HUD-Kante bleiben
       return { yTop: yTop, maxH: Math.max(130, groundY() - yTop) };
     }
-    function curTheme() { if (!G) return THEMES[0]; const i = G.endless ? Math.floor(G.p.x / 1400) % THEMES.length : G.li % THEMES.length; return THEMES[i]; }
+    function curTheme() { if (!G) return THEMES[0]; return THEMES[G.li % THEMES.length]; }
     function setStat() {
       if (!G) return;
-      $("stat").innerHTML = "⭐ " + G.score + (G.keyHave ? " 🗝️" : "") + "<span class='mini'>" + curTheme().nm + " · " + (G.endless ? "Endlos-Modus" : "Level " + (G.li + 1) + "/5") + "</span>";
+      $("stat").innerHTML = "⭐ " + G.score + (G.keyHave ? " 🗝️" : "") + "<span class='mini'>" + curTheme().nm + " · Level " + (G.li + 1) + "</span>";
     }
     function buildAmmo() {
       const box = $("ammo"); box.innerHTML = ""; G.syms.forEach((s, i) => {
@@ -655,7 +702,7 @@
       });
     }
     function spawnTarget(x) {
-      const diff = (G.endless ? G.li + Math.floor(G.p.x / 1400) * .8 : G.li);
+      const diff = Math.min(G.li, 12); // Deckel: Drift/Speed wachsen nicht endlos weiter
       const t = {
         base: x, y: 90 + Math.random() * 175, ph: Math.random() * 6.28, tt: Math.random() * 6.28,
         sym: G.syms[Math.floor(Math.random() * G.syms.length)], r: 27, dead: false, wob: 0, key: false,
@@ -665,30 +712,28 @@
       }; G.targets.push(t); return t;
     }
     function buildLevel() {
-      if (G.endless) { G.len = 1e9; for (let i = 0; i < 9; i++)spawnTarget(430 + i * 210); G.maxX = 430 + 9 * 210 + 170; return; }
       const gap = Math.max(180, 280 - G.li * 18); let x = 470;
       for (let i = 0; i < G.L.n; i++) { spawnTarget(x + (i % 3) * 26); x += gap; }
       G.len = x + 140;
-      const kb = G.targets[Math.floor(Math.random() * G.targets.length)]; kb.key = true; kb.r = 30;
+      const kb = G.targets[Math.floor(Math.random() * G.targets.length)]; kb.key = true; // getarnt: sieht aus wie jeder andere Ballon
     }
     function startGame(li, score) {
-      const endless = li >= 5, L = endless ? { n: 9999, types: 6 } : LEVELS[li];
+      const L = getLevel(li);
       G = {
-        li, endless, L, score: score || 0, sel: 0, syms: SYMS.slice(0, L.types), ammo: {}, shootCd: 0,
-        gate: endless ? null : { x: 0, open: false, hintT: -9 }, key: null, keyHave: false,
-        t: 0, over: false, lastTheme: -1, maxX: 0, maxBoxX: 0, maxPickX: 0,
+        li, L, score: score || 0, startScore: score || 0, sel: 0, syms: SYMS.slice(0, L.types), ammo: {}, shootCd: 0,
+        gate: { x: 0, open: false, hintT: -9 }, key: null, keyHave: false,
+        t: 0, over: false, maxBoxX: 0, maxPickX: 0,
         p: { x: 150, y: 0, vy: 0, on: true, ph: 0, face: 1, aimT: 0, aimA: null },
         cam: 0, targets: [], projs: [], parts: [], boxes: [], picks: []
       };
       for (const s of G.syms) G.ammo[s] = 0;
       buildLevel(); buildBoxes(); buildPickups();
-      if (G.gate) G.gate.x = G.len + 60;
+      G.gate.x = G.len + 60;
       buildAmmo();
-      $("startScr").classList.add("hidden"); $("doneScr").classList.add("hidden");
+      $("startScr").classList.add("hidden"); $("doneScr").classList.add("hidden"); $("mathScr").classList.add("hidden");
       $("hud").classList.remove("hidden");
       setStat();
-      hint(endless ? "🌟 Endlos-Modus! Sammle Symbole ✨ ein und jage die Ballons 🎈"
-        : "Level " + (li + 1) + ": " + curTheme().nm + " – Sammle Munition ✨, triff die Ballons 🎈 und hol den Schlüssel 🗝️ fürs Tor!", 4200);
+      hint("Level " + (li + 1) + ": " + curTheme().nm + " – Sammle Munition ✨, schieße die Ballons 🎈 ab. In einem von ihnen steckt der Schlüssel 🗝️ fürs Tor!", 4200);
       if (innerWidth < innerHeight && innerWidth < 560) setTimeout(() => hint("💡 Tipp: Dreh das Handy quer – dann hast du mehr Platz!", 3800), 4400);
     }
     function addBoxGroup(x) {
@@ -709,7 +754,7 @@
     }
     function buildBoxes() {
       G.maxBoxX = 560 + Math.random() * 120;
-      const limit = G.endless ? G.p.x + innerWidth + 900 : G.len - 560;
+      const limit = G.len - 560;
       while (G.maxBoxX < limit) { G.maxBoxX += addBoxGroup(G.maxBoxX); }
     }
     function addPickup(x) {
@@ -722,7 +767,7 @@
     }
     function buildPickups() {
       G.maxPickX = 440;
-      const limit = G.endless ? G.p.x + innerWidth + 700 : G.len - 280;
+      const limit = G.len - 280;
       while (G.maxPickX < limit) { G.maxPickX += 150 + Math.random() * 170; addPickup(G.maxPickX); }
     }
     function burst(x, y, n, colors, sp) {
@@ -753,7 +798,7 @@
       else { t.wob = 1; sWrong(); hint(WRONGS[Math.floor(Math.random() * WRONGS.length)], 2200); }
     }
     function shoot(sx, sy) {
-      if (!G || G.over || G.shootCd > 0) return;
+      if (!G || G.over || G.math || G.shootCd > 0) return;
       const sym = G.syms[G.sel];
       if ((G.ammo[sym] || 0) < 1) {
         hint("Keine " + sym + "-Munition! Sammle Symbole ✨ im Level ein!", 2400);
@@ -773,19 +818,62 @@
       const li = G.li, score = G.score;
       setTimeout(() => {
         G = null;
-        $("doneTitle").textContent = li >= 4 ? "🏆 Alle 5 Level geschafft! 🏆" : "🎉 Level " + (li + 1) + " geschafft! 🎉";
+        $("doneTitle").textContent = "🎉 Level " + (li + 1) + " geschafft! 🎉";
         $("doneTxt").innerHTML = "Sehr gut" + (CFG.name ? ", " + CFG.name : "") + "! 🎉<br>Punkte: " + score + " ⭐<br>Deine Sterne: ⭐⭐⭐";
-        $("nextBtn").textContent = li >= 4 ? "🌟 Endlos-Modus ➡️" : "Weiter ➡️";
+        $("nextBtn").textContent = "Weiter ➡️";
         $("hud").classList.add("hidden");
         $("nextBtn").onclick = () => { sClick(); startGame(li + 1, score); };
         $("doneScr").classList.remove("hidden");
       }, 1400);
+    }
+    /* Rechenaufgabe am Tor: erst richtig rechnen, dann öffnet das Tor */
+    function newTask(li) {
+      const max = Math.min(10, 3 + li); // kleine Zahlen am Anfang, später bis 10×10
+      const a = 1 + Math.floor(Math.random() * max), b = 1 + Math.floor(Math.random() * max);
+      return { a: a, b: b, res: a * b, entry: "", state: "ask" };
+    }
+    function showMath() {
+      const m = G.math;
+      $("mathQ").textContent = m.a + " × " + m.b + " = ?";
+      $("mathAns").textContent = "_";
+      $("mathWrong").classList.add("hidden");
+      $("mathPad").classList.remove("hidden");
+      $("mathScr").classList.remove("hidden");
+    }
+    function mathKey(k) {
+      const m = G && G.math; if (!m || m.state !== "ask") return;
+      if (k === "ok") { mathCheck(); return; }
+      if (k === "del") { m.entry = m.entry.slice(0, -1); tone(300, .06, "sine", .1); }
+      else if (m.entry.length < 3) { m.entry += k; sClick(); }
+      $("mathAns").textContent = m.entry || "_";
+    }
+    function mathCheck() {
+      const m = G.math;
+      if (!m.entry.length) { tone(200, .15, "sine", .12); return; }
+      if (parseInt(m.entry, 10) === m.res) {
+        m.state = "ok"; G.math = null;
+        tone(660, .12, "triangle", .22, 180); tone(990, .18, "triangle", .22, 180, .1);
+        $("mathScr").classList.add("hidden");
+        G.gate.open = true; tone(500, .3, "triangle", .22, 260);
+        hint("🔓 Richtig! Das Tor ist offen – geh hindurch! 🚪", 3200);
+      } else {
+        m.state = "wrong"; sWrong(); tone(150, .45, "sine", .16, -40, .3);
+        $("mathPad").classList.add("hidden");
+        $("mathWrongTxt").innerHTML = "❌ Leider falsch!<br>Richtig wäre <b>" + m.a + " × " + m.b + " = " + m.res + "</b> gewesen.";
+        $("retryBtn").onclick = () => {
+          sClick(); const li = G.li, sc = G.startScore;
+          $("mathScr").classList.add("hidden");
+          startGame(li, sc); // falsch gerechnet → Level wiederholen
+        };
+        $("mathWrong").classList.remove("hidden");
+      }
     }
     /*@@P4@@*/
     function update(dt) {
       if (!G || G.over) { if (G) updParts(dt); return; }
       G.t += dt;
       if (G.shootCd > 0) G.shootCd -= dt;
+      if (G.math) { IN.l = 0; IN.r = 0; IN.j = 0; } // Rechenaufgabe offen → Spieler steht still
       const p = G.p, sp = 270 * dt, HW = 13;
       let mx = (IN.r ? 1 : 0) - (IN.l ? 1 : 0);
       if (mx) { p.face = mx; p.x += mx * sp; p.ph += dt * (p.on ? 17 : 8); }
@@ -799,7 +887,7 @@
       }
       if (G.gate && !G.keyHave && !G.gate.open && p.x > G.gate.x - 36) {
         p.x = G.gate.x - 36;
-        if (G.t - G.gate.hintT > 3) { G.gate.hintT = G.t; hint("🔒 Das Tor ist verschlossen! Du brauchst den Schlüssel 🗝️ aus dem goldenen Ballon!", 2600); }
+        if (G.t - G.gate.hintT > 3) { G.gate.hintT = G.t; hint("🔒 Das Tor ist verschlossen! Du brauchst den Schlüssel 🗝️ – er steckt in einem der Ballons!", 2600); }
       }
       p.x = Math.max(40, p.x);
       if (IN.j && p.on) { p.vy = 700; p.on = false; IN.j = 0; sJump(); }
@@ -813,16 +901,6 @@
       if (p.aimT > 0) { p.aimT -= dt; if (p.aimT <= 0) p.aimA = null; }
       const tc = Math.max(0, p.x - 260);
       G.cam += (tc - G.cam) * Math.min(1, dt * 7);
-      const th = curTheme(), ti = THEMES.indexOf(th);
-      if (G.endless) {
-        if (ti !== G.lastTheme) { G.lastTheme = ti; setStat(); if (G.t > 2) hint("Neues Land: " + th.nm + " ✨", 2600); }
-        for (let i = G.targets.length - 1; i >= 0; i--) { const t = G.targets[i]; if (t.x < G.cam - 140) G.targets.splice(i, 1); }
-        while (G.maxX < G.cam + W + 700) { spawnTarget(G.maxX + 120 + Math.random() * 140); G.maxX += 170 + Math.random() * 130; }
-        while (G.maxBoxX < G.cam + W + 900) { G.maxBoxX += addBoxGroup(G.maxBoxX); }
-        for (let i = G.boxes.length - 1; i >= 0; i--)if (G.boxes[i].x < G.cam - 240) G.boxes.splice(i, 1);
-        while (G.maxPickX < G.cam + W + 700) { G.maxPickX += 150 + Math.random() * 170; addPickup(G.maxPickX); }
-        for (let i = G.picks.length - 1; i >= 0; i--)if (G.picks[i].x < G.cam - 240) G.picks.splice(i, 1);
-      } else G.lastTheme = ti;
       const bb = balloonBand(), lo = 156; // Unterkante über allen Hindernissen (Kiste max. 120 + Ballon-Radius 27)
       for (const t of G.targets) {
         t.tt += dt;
@@ -851,10 +929,11 @@
           G.key.taken = true; G.keyHave = true; setStat();
           tone(660, .15, "triangle", .2, 180); tone(990, .2, "triangle", .2, 180, .12);
           burst(G.key.x, groundY() - G.key.hy, 16, ["#ffd23f", "#ffffff"], 130);
-          hint("🗝️ Schlüssel gefunden! Lauf zum Tor und öffne es!", 3400);
+          hint("🗝️ Schlüssel gefunden! Bring ihn zum Tor – dort musst du noch rechnen!", 3400);
         }
       }
-      if (G.gate && !G.gate.open && G.keyHave) { G.gate.open = true; tone(500, .3, "triangle", .22, 260); hint("🔓 Das Tor ist offen! Geh hindurch! 🚪", 3000); }
+      // Am Tor mit Schlüssel: erst die Rechenaufgabe lösen, dann öffnet das Tor
+      if (G.gate && !G.gate.open && G.keyHave && !G.math && p.x > G.gate.x - 44) { G.math = newTask(G.li); showMath(); tone(440, .15, "sine", .18); }
       // Projektile fliegen schnell & GENAU zum geklickten Punkt; Treffer nur bei echter Berührung
       for (let i = G.projs.length - 1; i >= 0; i--) {
         const pr = G.projs[i]; let dead = false;
@@ -907,7 +986,7 @@
       ctx.fillStyle = th.gnd2; ctx.fillRect(0, groundY() + 10, W, 9);
     }
     function drawDeco(th) {
-      const st = 90, seedOff = G.endless ? Math.floor(G.p.x / 1400) * 1000 : G.li * 1000;
+      const st = 90, seedOff = G.li * 1000;
       for (let i = Math.floor(G.cam / st) - 1; i < Math.floor((G.cam + W) / st) + 2; i++) {
         const h1 = hash((i + seedOff) * 7.31);
         if (h1 < .42) continue;
@@ -951,7 +1030,7 @@
     function camOff() { return G ? G.cam : 0; }
     /*@@P6@@*/
     function drawTarget(t) {
-      const x = t.x - camOff(), y = t.dy, col = t.key ? "#f4c542" : (SYMC[t.sym] || "#4aa3df"), r = t.r;
+      const x = t.x - camOff(), y = t.dy, col = SYMC[t.sym] || "#4aa3df", r = t.r; // Schlüssel-Ballon ist getarnt
       const wob = t.wob > 0 ? Math.sin(t.wob * 28) * t.wob * .35 : 0;
       ctx.save(); ctx.translate(x, y); ctx.rotate(wob);
       ctx.strokeStyle = "rgba(120,90,60,.7)"; ctx.lineWidth = 1.6;
@@ -962,7 +1041,6 @@
       ctx.beginPath(); ctx.ellipse(-r * .3, -r * .32, r * .2, r * .3, -.5, 0, 7); ctx.fill();
       ctx.font = "26px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(t.sym, 0, 1);
-      if (t.key) { ctx.font = "17px Arial"; ctx.fillText("🗝️", 0, -r - 14); }
       ctx.restore();
     }
     function drawGate() {
@@ -1065,6 +1143,12 @@
     /*@@P7@@*/
     addEventListener("keydown", e => {
       const k = e.key;
+      if (G && G.math) { // Rechenaufgabe: Ziffern / Backspace / Enter tippen
+        if (/^[0-9]$/.test(k)) { mathKey(k); e.preventDefault(); }
+        else if (k === "Backspace") { mathKey("del"); e.preventDefault(); }
+        else if (k === "Enter") { mathKey("ok"); e.preventDefault(); }
+        return;
+      }
       if (k === "ArrowLeft" || k === "a" || k === "A") IN.l = 1;
       if (k === "ArrowRight" || k === "d" || k === "D") IN.r = 1;
       if ((k === " " || k === "ArrowUp" || k === "w" || k === "W") && (!document.activeElement || document.activeElement.tagName !== "INPUT")) { IN.j = 1; e.preventDefault(); }
@@ -1089,6 +1173,7 @@
       }
     }
     bindHold("bL", "l"); bindHold("bR", "r");
+    document.querySelectorAll("#mathPad .mkey").forEach(b => b.addEventListener("click", () => mathKey(b.dataset.k)));
     (function () {
       const b = $("bJ"), dn = e => { e.preventDefault(); IN.j = 1; };
       if (window.PointerEvent) b.addEventListener("pointerdown", dn);
