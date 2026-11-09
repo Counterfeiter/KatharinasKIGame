@@ -287,14 +287,20 @@
       z-index: 15
     }
 
+    /* Unterer Streifen = Touch-Blocker: Taps neben den Knöpfen sollen NICHT aufs Canvas
+       durchschlagen (früher lösten sie einen sinnlosen Abwärts-Schuss aus).
+       Nur die Knöpfe selbst (.tbtn) reagieren – der Rest des Streifens schluckt alles. */
     #touch {
       position: fixed;
-      bottom: calc(14px + env(safe-area-inset-bottom));
+      bottom: 0;
       left: 0;
       right: 0;
       display: flex;
       justify-content: space-between;
-      padding: 0 calc(18px + env(safe-area-inset-right)) 0 calc(18px + env(safe-area-inset-left))
+      align-items: flex-end;
+      padding: 12px calc(18px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(18px + env(safe-area-inset-left));
+      pointer-events: auto;
+      touch-action: none
     }
 
     .tbtn {
@@ -396,8 +402,8 @@
       }
 
       #touch {
-        padding: 0 10px;
-        bottom: calc(10px + env(safe-area-inset-bottom))
+        padding: 8px 10px calc(10px + env(safe-area-inset-bottom)) 10px;
+        bottom: 0
       }
     }
 
@@ -457,31 +463,39 @@
       }
     }
 
-    /* Rechenaufgabe am Tor (Overlay + Ziffernblock) */
+    /* Rechenaufgabe am Tor (Overlay + 100er-Tafel wie in Clemens' Steinbrecher) */
     #mathScr { background: rgba(25, 45, 85, .55); z-index: 40 }
     #mathQ { font-size: 44px; font-weight: bold; color: #2f6db5; margin: 8px 0 2px }
-    #mathAns { font-size: 34px; font-weight: bold; color: #ff4f8b; min-height: 46px; width: 150px; margin: 0 auto 12px; border-bottom: 4px dashed #9fd4ff; line-height: 46px }
-    #mathPad { display: grid; grid-template-columns: repeat(3, 74px); gap: 10px; justify-content: center }
-    .mkey { font: inherit; font-size: 26px; font-weight: bold; width: 74px; height: 62px; border-radius: 16px; border: none; background: #eef7ff; color: #2f6db5; box-shadow: 0 4px 0 #cfe4f7; cursor: pointer; touch-action: manipulation; pointer-events: auto }
-    .mkey:active { transform: translateY(3px); box-shadow: 0 1px 0 #cfe4f7 }
-    .mkey.ok { background: #5cbf60; color: #fff; box-shadow: 0 4px 0 #3f8f3f }
-    .mkey.del { background: #ffe3ec; color: #d63e73; box-shadow: 0 4px 0 #eeb6c8 }
+    #mathAns { font-size: 30px; font-weight: bold; color: #ff4f8b; min-height: 38px; line-height: 38px; width: 150px; margin: 0 auto 2px; border-bottom: 4px dashed #9fd4ff }
+    #mathGrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: min(88vw, 500px); margin: 8px auto 2px }
+    .qcell { font: inherit; font-weight: bold; color: #2f6db5; background: #eef7ff; border: 3px solid #fff; border-radius: 10px; cursor: pointer; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: clamp(11px, 2.6vmin, 20px); box-shadow: 0 3px 0 #cfe4f7; touch-action: manipulation; pointer-events: auto }
+    .qcell:active { transform: translateY(3px); box-shadow: 0 1px 0 #cfe4f7 }
+    .qcell:nth-child(10n+1) { background: #ffd6a5; color: #9c5a17 }
+    .qcell.okpick { background: #5cbf60; color: #fff; box-shadow: 0 3px 0 #3f8f3f }
+    .qcell.badpick { background: #e94f64; color: #fff; box-shadow: 0 3px 0 #b03246 }
+    #mathGrid.locked { pointer-events: none; opacity: .45 }
+    .subSmall { font-size: 12px; margin: 6px 0 0 }
+    #mathCard.shake { animation: mshake .4s }
+    @keyframes mshake { 0%, 100% { transform: translateX(0) } 20% { transform: translateX(-12px) } 40% { transform: translateX(12px) } 60% { transform: translateX(-8px) } 80% { transform: translateX(8px) } }
+    #mathCard.flashGood { animation: mflash .5s }
+    @keyframes mflash { 0% { background: #b8f5c9 } 100% { background: rgba(255, 255, 255, .95) } }
     #mathWrong { margin-top: 6px; font-size: 18px; color: #c2447c; line-height: 1.5 }
     @media (max-width:560px) {
       #mathQ { font-size: 34px }
-      #mathAns { font-size: 28px; min-height: 38px; line-height: 38px; width: 130px }
-      #mathPad { grid-template-columns: repeat(3, 62px); gap: 8px }
-      .mkey { width: 62px; height: 54px; font-size: 22px; border-radius: 13px }
+      #mathAns { font-size: 26px; min-height: 32px; line-height: 32px; width: 130px }
+      #mathGrid { gap: 3px }
+      .subSmall { font-size: 11px }
       #mathWrong { font-size: 15px }
     }
     @media (max-height:460px) {
-      #mathScr .card { padding: 10px 16px }
-      #mathScr h1 { font-size: 24px; margin: 0 0 2px }
-      #mathScr .sub { font-size: 13px; margin: 2px 0 }
-      #mathQ { font-size: 30px; margin: 2px 0 }
-      #mathAns { font-size: 24px; min-height: 30px; line-height: 30px; margin-bottom: 6px }
-      #mathPad { grid-template-columns: repeat(3, 56px); gap: 7px }
-      .mkey { width: 56px; height: 46px; font-size: 19px; border-radius: 11px; box-shadow: 0 3px 0 #cfe4f7 }
+      #mathScr .card { padding: 8px 14px }
+      #mathScr h1 { font-size: 22px; margin: 0 0 2px }
+      #mathScr .sub { font-size: 12px; margin: 1px 0 }
+      #mathQ { font-size: 26px; margin: 2px 0 }
+      #mathAns { font-size: 22px; min-height: 26px; line-height: 26px; margin-bottom: 2px }
+      #mathGrid { width: min(88vw, 55vmin); gap: 3px; margin-top: 5px }
+      .qcell { font-size: 10px; border-width: 2px; border-radius: 7px; box-shadow: 0 2px 0 #cfe4f7 }
+      .subSmall { font-size: 10px; margin: 3px 0 0 }
       #mathWrong { font-size: 14px }
     }
     /* Querformat-Handys: Hinweis über den Steuerknöpfen statt oben */
@@ -541,17 +555,13 @@
   </div>
 
   <div id="mathScr" class="screen hidden">
-    <div class="card">
+    <div class="card" id="mathCard">
       <h1>🔐 Das Tor</h1>
-      <div class="sub">Rechne die Aufgabe, um durchzugehen!</div>
+      <div class="sub">Rechne die Aufgabe und tippe das Ergebnis auf der Tafel an!</div>
       <div id="mathQ"></div>
       <div id="mathAns">_</div>
-      <div id="mathPad">
-        <button class="mkey" data-k="1">1</button><button class="mkey" data-k="2">2</button><button class="mkey" data-k="3">3</button>
-        <button class="mkey" data-k="4">4</button><button class="mkey" data-k="5">5</button><button class="mkey" data-k="6">6</button>
-        <button class="mkey" data-k="7">7</button><button class="mkey" data-k="8">8</button><button class="mkey" data-k="9">9</button>
-        <button class="mkey del" data-k="del">⌫</button><button class="mkey" data-k="0">0</button><button class="mkey ok" data-k="ok">✓</button>
-      </div>
+      <div id="mathGrid"></div>
+      <div class="sub subSmall">👆 Antwort auf der 100er-Tafel antippen · Tastatur: Zahl tippen + Enter</div>
       <div id="mathWrong" class="hidden">
         <div id="mathWrongTxt"></div>
         <button class="btn" id="retryBtn">🔁 Level wiederholen</button>
@@ -826,40 +836,74 @@
         $("doneScr").classList.remove("hidden");
       }, 1400);
     }
-    /* Rechenaufgabe am Tor: erst richtig rechnen, dann öffnet das Tor */
-    function newTask(li) {
-      const max = Math.min(10, 3 + li); // kleine Zahlen am Anfang, später bis 10×10
-      const a = 1 + Math.floor(Math.random() * max), b = 1 + Math.floor(Math.random() * max);
-      return { a: a, b: b, res: a * b, entry: "", state: "ask" };
+    /* Rechenaufgabe am Tor: erst richtig rechnen, dann öffnet das Tor.
+       Aufgabengenerator + 100er-Tafel EXAKT wie in Clemens' Steinbrecher (ClemensSpiel/js/quiz.js):
+       gewichtete Reihen (schwere Reihen 3,4,6,7,8,9 deutlich häufiger als 1,2,5,10),
+       55 % Mal / 45 % Geteilt, 1×1 und :1 werden übersprungen, Fallback 7×8. */
+    const SERIES_WEIGHTS = { 1: 1, 2: 2, 5: 2, 10: 2, 3: 7, 4: 6, 6: 7, 7: 8, 8: 7, 9: 7 };
+    function weightedSeries() {
+      let sum = 0;
+      for (const k in SERIES_WEIGHTS) sum += SERIES_WEIGHTS[k];
+      let x = Math.random() * sum;
+      for (const k in SERIES_WEIGHTS) { x -= SERIES_WEIGHTS[k]; if (x < 0) return parseInt(k, 10); }
+      return 7;
+    }
+    let mathCells = null;
+    function buildMathGrid() {
+      if (mathCells) return;
+      const g = $("mathGrid"); mathCells = [];
+      for (let n = 1; n <= 100; n++) {
+        const b = document.createElement("button");
+        b.className = "qcell"; b.textContent = n;
+        b.addEventListener("click", () => mathPick(n, b));
+        g.appendChild(b); mathCells.push(b);
+      }
+    }
+    function newTask() { // volle Schwierigkeit wie bei Clemens (Level-Stufe spielt bewusst keine Rolle mehr)
+      const kind = Math.random() < 0.55 ? "mal" : "teilen";
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const a = weightedSeries(), b = weightedSeries();
+        if (kind === "mal") {
+          if (a === 1 && b === 1) continue; // 1×1 ist zu leicht
+          return { kind: kind, a: a, b: b, res: a * b, text: a + " × " + b + " = ?", entry: "", state: "ask" };
+        }
+        if (b === 1) continue; // :1 ist zu leicht
+        return { kind: kind, a: a, b: b, res: a, text: (a * b) + " : " + b + " = ?", entry: "", state: "ask" };
+      }
+      return { kind: "mal", a: 7, b: 8, res: 56, text: "7 × 8 = ?", entry: "", state: "ask" };
     }
     function showMath() {
       const m = G.math;
-      $("mathQ").textContent = m.a + " × " + m.b + " = ?";
+      buildMathGrid();
+      mathCells.forEach(c => c.classList.remove("okpick", "badpick"));
+      $("mathGrid").classList.remove("locked");
+      $("mathQ").textContent = m.text;
       $("mathAns").textContent = "_";
       $("mathWrong").classList.add("hidden");
-      $("mathPad").classList.remove("hidden");
       $("mathScr").classList.remove("hidden");
     }
-    function mathKey(k) {
+    function mathPick(n, cell) {
       const m = G && G.math; if (!m || m.state !== "ask") return;
-      if (k === "ok") { mathCheck(); return; }
-      if (k === "del") { m.entry = m.entry.slice(0, -1); tone(300, .06, "sine", .1); }
-      else if (m.entry.length < 3) { m.entry += k; sClick(); }
-      $("mathAns").textContent = m.entry || "_";
-    }
-    function mathCheck() {
-      const m = G.math;
-      if (!m.entry.length) { tone(200, .15, "sine", .12); return; }
-      if (parseInt(m.entry, 10) === m.res) {
-        m.state = "ok"; G.math = null;
+      const card = $("mathCard");
+      if (n === m.res) {
+        if (cell) cell.classList.add("okpick");
+        m.state = "ok";
         tone(660, .12, "triangle", .22, 180); tone(990, .18, "triangle", .22, 180, .1);
-        $("mathScr").classList.add("hidden");
-        G.gate.open = true; tone(500, .3, "triangle", .22, 260);
-        hint("🔓 Richtig! Das Tor ist offen – geh hindurch! 🚪", 3200);
+        G.gate.open = true; G.math = null; // sofort, damit der Gate-Trigger nicht neu auslöst
+        card.classList.add("flashGood");
+        setTimeout(() => {
+          card.classList.remove("flashGood");
+          $("mathScr").classList.add("hidden");
+          tone(500, .3, "triangle", .22, 260);
+          hint("🔓 Richtig! Das Tor ist offen – geh hindurch! 🚪", 3200);
+        }, 380);
       } else {
+        if (cell) cell.classList.add("badpick");
         m.state = "wrong"; sWrong(); tone(150, .45, "sine", .16, -40, .3);
-        $("mathPad").classList.add("hidden");
-        $("mathWrongTxt").innerHTML = "❌ Leider falsch!<br>Richtig wäre <b>" + m.a + " × " + m.b + " = " + m.res + "</b> gewesen.";
+        card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+        $("mathGrid").classList.add("locked");
+        $("mathWrongTxt").innerHTML = "❌ Leider falsch!<br>Richtig wäre <b>" +
+          m.text.replace(" = ?", "") + " = " + m.res + "</b> gewesen.";
         $("retryBtn").onclick = () => {
           sClick(); const li = G.li, sc = G.startScore;
           $("mathScr").classList.add("hidden");
@@ -867,6 +911,19 @@
         };
         $("mathWrong").classList.remove("hidden");
       }
+    }
+    /* Tastatur-Eingabe zur Tafel: Ziffern eintippen, Backspace löscht, Enter pickt die Zelle */
+    function mathType(k) {
+      const m = G && G.math; if (!m || m.state !== "ask") return;
+      if (k === "ok") {
+        const n = parseInt(m.entry, 10);
+        if (m.entry.length && n >= 1 && n <= 100) mathPick(n, mathCells[n - 1]);
+        else tone(200, .15, "sine", .12);
+        return;
+      }
+      if (k === "del") { m.entry = m.entry.slice(0, -1); tone(300, .06, "sine", .1); }
+      else if (m.entry.length < 3) { m.entry += k; sClick(); }
+      $("mathAns").textContent = m.entry ? m.entry + "_" : "_";
     }
     /*@@P4@@*/
     function update(dt) {
@@ -1143,10 +1200,10 @@
     /*@@P7@@*/
     addEventListener("keydown", e => {
       const k = e.key;
-      if (G && G.math) { // Rechenaufgabe: Ziffern / Backspace / Enter tippen
-        if (/^[0-9]$/.test(k)) { mathKey(k); e.preventDefault(); }
-        else if (k === "Backspace") { mathKey("del"); e.preventDefault(); }
-        else if (k === "Enter") { mathKey("ok"); e.preventDefault(); }
+      if (G && G.math) { // Rechenaufgabe: Zahl eintippen (Tafel-Zelle), Backspace/Enter
+        if (/^[0-9]$/.test(k)) { mathType(k); e.preventDefault(); }
+        else if (k === "Backspace") { mathType("del"); e.preventDefault(); }
+        else if (k === "Enter") { mathType("ok"); e.preventDefault(); }
         return;
       }
       if (k === "ArrowLeft" || k === "a" || k === "A") IN.l = 1;
@@ -1173,7 +1230,6 @@
       }
     }
     bindHold("bL", "l"); bindHold("bR", "r");
-    document.querySelectorAll("#mathPad .mkey").forEach(b => b.addEventListener("click", () => mathKey(b.dataset.k)));
     (function () {
       const b = $("bJ"), dn = e => { e.preventDefault(); IN.j = 1; };
       if (window.PointerEvent) b.addEventListener("pointerdown", dn);
